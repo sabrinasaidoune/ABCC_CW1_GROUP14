@@ -35,9 +35,3 @@ ls -lh counts.txt counts.txt.summary
 head counts.txt
 
 ```
-
-
-```{r}
-
-```
-
