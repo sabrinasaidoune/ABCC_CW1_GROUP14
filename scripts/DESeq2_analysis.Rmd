@@ -1,0 +1,74 @@
+---
+title: "DESeq2_analysis"
+output: html_document
+date: "2025-12-16"
+---
+
+```{r}
+
+setwd("/Users/.../files")
+
+library(DESeq2)
+library(ggplot2)
+library(pheatmap)
+library(RColorBrewer)
+library(EnhancedVolcano)
+
+# Load featureCounts output
+
+counts <- read.delim(
+  "counts.txt",
+  comment.char = "#",
+  row.names = 1,
+  check.names = FALSE
+)
+countdata <- counts[, 6:11]
+
+# Sample metadata
+
+coldata <- data.frame(
+  row.names = colnames(countdata),
+  condition = factor(c(
+    "Control", "Control", "Control",
+    "AgXX", "AgXX", "AgXX"
+  ))
+)
+
+# Create DESeq2 object
+
+dds <- DESeqDataSetFromMatrix(
+  countData = countdata,
+  colData = coldata,
+  design = ~ condition
+)
+
+dds <- dds[rowSums(counts(dds)) > 10, ]
+
+# Run DESeq2
+
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("condition", "AgXX", "Control"))
+res <- res[order(res$padj), ]
+
+write.csv(
+  as.data.frame(res),
+  "DESeq2_results.csv"
+)
+
+vsd <- vst(dds, blind = FALSE)
+
+# optional but useful for downstream analysis to make a normalised counts file
+
+normCounts <- counts(dds, normalized = TRUE)
+write.csv(normCounts, "normalized_counts.csv")
+
+
+```
+
+
+
+
+
+
+
