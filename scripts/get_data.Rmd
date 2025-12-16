@@ -1,0 +1,29 @@
+---
+title: "get_data"
+output: html_document
+date: "2025-12-16"
+---
+
+```{bash}
+
+cd /scratch/grp/msc_appbio/Group14_ABCC && \
+mkdir -p raw && \
+cd raw && \
+BASE_FTP="ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR271" && \
+wget -nc \
+${BASE_FTP}/004/ERR2713024/ERR2713024_2.fastq.gz \
+${BASE_FTP}/000/ERR2713020/ERR2713020_2.fastq.gz \
+${BASE_FTP}/003/ERR2713023/ERR2713023_1.fastq.gz \
+${BASE_FTP}/001/ERR2713021/ERR2713021_2.fastq.gz \
+${BASE_FTP}/004/ERR2713024/ERR2713024_1.fastq.gz \
+${BASE_FTP}/005/ERR2713025/ERR2713025_1.fastq.gz \
+${BASE_FTP}/002/ERR2713022/ERR2713022_2.fastq.gz \
+${BASE_FTP}/003/ERR2713023/ERR2713023_2.fastq.gz \
+${BASE_FTP}/005/ERR2713025/ERR2713025_2.fastq.gz \
+${BASE_FTP}/002/ERR2713022/ERR2713022_1.fastq.gz \
+${BASE_FTP}/000/ERR2713020/ERR2713020_1.fastq.gz \
+${BASE_FTP}/001/ERR2713021
+
+```
+
+
