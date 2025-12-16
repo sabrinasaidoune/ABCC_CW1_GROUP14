@@ -1,0 +1,37 @@
+# Bowtie2 alignment script for Group 14 Applied Bioinformatics project
+
+#!/bin/bash
+#SBATCH --job-name=bowtie2_alignment
+#SBATCH --output=bowtie2_alignment.out
+#SBATCH --error=bowtie2_alignment.err
+#SBATCH --time=04:00:00
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16G
+
+# Load required modules
+module load bowtie2
+module load samtools
+
+# Reference genome index
+INDEX="ref_index/SA_USA300"
+
+# Input directory containing FASTQ files
+INPUT="raw"
+
+# Control sample
+bowtie2 -x $INDEX \
+  -1 $INPUT/USA300_CO_3_strRNA_B3_neu_TGACCA_L001_R1_001.fastq.gz \
+  -2 $INPUT/USA300_CO_3_strRNA_B3_neu_TGACCA_L001_R2_001.fastq.gz \
+  -S B3.sam
+
+samtools sort -@ 8 -o B3.sorted.bam B3.sam
+samtools index B3.sorted.bam
+
+# AGXX-treated sample
+bowtie2 -x $INDEX \
+  -1 $INPUT/USA300_AgXX_1_strRNA_B4_ACAGTG_L001_R1_001.fastq.gz \
+  -2 $INPUT/USA300_AgXX_1_strRNA_B4_ACAGTG_L001_R2_001.fastq.gz \
+  -S B4.sam
+
+samtools sort -@ 8 -o B4.sorted.bam B4.sam
+samtools index B4.sorted.bam
