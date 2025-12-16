@@ -1,0 +1,59 @@
+---
+title: "treemap_script"
+output: html_document
+date: "2025-12-16"
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(treemapify)
+library(readr)
+
+# Load DESeq2 results
+res <- read_csv("DESeq2_results_renamed.csv")
+
+# Filter significant genes
+sig <- res %>%
+  filter(padj <= 0.05, abs(log2FoldChange) >= 0.6)
+
+# Remove genes without names (optional)
+sig <- sig %>% filter(!is.na(gene))
+
+# Constrain log2 fold change values to [-4, +4] for plotting
+sig$log2FoldPlot <- pmax(pmin(sig$log2FoldChange, 4), -4)
+
+# Generate treemap
+ggplot(sig,
+       aes(
+         area = abs(log2FoldChange),
+         fill = log2FoldPlot,
+         label = gene
+       )) +
+  geom_treemap() +
+  geom_treemap_text(
+    place = "centre",
+    grow = TRUE,
+    colour = "black",
+    min.size = 6
+  ) +
+  scale_fill_gradient2(
+    limits = c(-4, 4),
+    low = "blue",
+    mid = "white",
+    high = "red",
+    midpoint = 0,
+    name = "log2FC"
+  ) +
+  labs(
+    title = "AGXX® Transcriptome",
+    subtitle = "Log2-fold changes constrained to -4 to +4",
+    fill = "log2FC"
+  ) +
+  theme_minimal()
+
+# Save figure
+ggsave("AGXX_treemap.png", width = 8, height = 6, dpi = 300)
+
+```
+
