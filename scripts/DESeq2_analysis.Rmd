@@ -3,7 +3,6 @@ title: "DESeq2_analysis"
 output: html_document
 date: "2025-12-16"
 ---
-
 ```{r}
 
 setwd("/Users/.../files")
@@ -63,12 +62,4 @@ vsd <- vst(dds, blind = FALSE)
 normCounts <- counts(dds, normalized = TRUE)
 write.csv(normCounts, "normalized_counts.csv")
 
-
 ```
-
-
-
-
-
-
-
