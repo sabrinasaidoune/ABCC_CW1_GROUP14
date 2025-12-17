@@ -1,101 +1,123 @@
-
-# MA Plot to create Figure 2 using Table S1
-
-# Load required libraries
 library(ggplot2)
 library(dplyr)
 library(ggrepel)
 
-# Set working directory
-setwd("~/Desktop")
+#Loading Table S1
 
-# Load Table S1
+setwd("~/Desktop")   # Change if needed
 
-# Skip the first row (not include the title)
 table1 <- read.csv("Copy of Table 1.csv", skip = 1)
 
-# Check column names
-names(table1)
+# Inspect to confirm structure
+print(names(table1))
 
-# Rename columns to standard names for convenience
-df <- table1 %>%
+#renaming standard variable names
+
+df <- table1 %>% 
   rename(
-    gene = USA300.numbers,
-    log2FoldChange = M.value,
-    baseMean = Base.mean,
-    padj = Adjusted.P.value
+    gene           = USA300.numbers,     # gene ID
+    A.value        = A.value,            # average log2 expression
+    log2FoldChange = M.value,            # M-value (log2 fold change)
+    padj           = Adjusted.P.value,   # adjusted p-value
+    Regulon        = Regulon             # regulon label
   )
 
-# Categorise genes based on thresholds in the paper
+#categorise genes according to thresholds
+
 df <- df %>%
   mutate(
     sig = case_when(
-      padj <= 0.05 & log2FoldChange >= 0.6 ~ "Upregulated",
+      padj <= 0.05 & log2FoldChange >=  0.6 ~ "Upregulated",
       padj <= 0.05 & log2FoldChange <= -0.6 ~ "Downregulated",
-      TRUE ~ "Not significant"
+      TRUE                                   ~ "Not significant"
     ),
+    
+    # Groups used for colour:
     plot_group = case_when(
-      sig == "Upregulated" ~ Regulon,          # colour by regulon
-      sig == "Downregulated" ~ "Repressed",
-      TRUE ~ "Not significant"
+      sig == "Upregulated"   ~ Regulon,      # coloured by regulon
+      sig == "Downregulated" ~ "Repressed",  # grey
+      TRUE                   ~ "Not significant"
     )
   )
 
-# Define colours for each regulon
+#regulon colours used in the paper
 
 regulon_colours <- c(
-  "TetR" = "#E4C22A",      # mustard yellow
-  "HypR" = "#8B0000",      # dark red/brown
-  "MhqR" = "#CC5500",      # burnt orange
-  "CidR" = "#97D700",      # green-yellow
-  "QsrR" = "#FFFF00",      # bright yellow
-  "CtsR" = "#7B2CBF",      # purple
-  "HrcA" = "#C77DFF",      # lavender
-  "CymR" = "#009688",      # teal
-  "PerR" = "#00B8D9",      # turquoise
-  "Fur"  = "#005BBB",      # dark blue
-  "CsoR" = "#5BC0EB",      # cyan
-  "CstR" = "#89CFF0",      # light blue
-  "Zur"  = "#00FF7F",      # mint green
+  "TetR" = "#E4C22A",
+  "HypR" = "#8B0000",
+  "MhqR" = "#CC5500",
+  "CidR" = "#97D700",
+  "QsrR" = "#FFFF00",
+  "CtsR" = "#7B2CBF",
+  "HrcA" = "#C77DFF",
+  "CymR" = "#009688",
+  "PerR" = "#00B8D9",
+  "Fur"  = "#005BBB",
+  "CsoR" = "#5BC0EB",
+  "CstR" = "#89CFF0",
+  "Zur"  = "#00FF7F",
   
-  # fallback categories
-  "Repressed" = "darkgrey",
+  # fallback groups:
+  "Repressed"       = "darkgrey",
   "Not significant" = "lightgrey"
 )
 
-# Pick top genes to label (highest fold-change)
+
+# selection of strongly responding genes 
 
 top_genes <- df %>%
   arrange(desc(abs(log2FoldChange))) %>%
-  head(12)
+  head(20)
 
-# Create MA plot
+#To make the plot
 
 p <- ggplot(df, aes(x = A.value, y = log2FoldChange)) +
-  geom_point(aes(colour = plot_group), alpha = 0.9, size = 2.5) +
+  
+  # Main coloured points
+  geom_point(aes(colour = plot_group), size = 2.6, alpha = 0.9) +
+  
+  # Colour mapping
   scale_colour_manual(values = regulon_colours, na.value = "lightgrey") +
+  
+  # Figure styling
   theme_bw(base_size = 14) +
+  theme(
+    panel.grid = element_blank(),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text  = element_text(size = 10)
+  ) +
+  
+  # Axis labels and title
   labs(
-    title = "MA plot of S. aureus USA300 under AGXX® stress",
-    x = "A-value (log2 base mean)",
-    y = "M-value / log2(fold change)",
+    title = "Replicated MA Plot of S. aureus USA300 Under AGXX® Stress",
+    x = "A-value (log2 mean expression)",
+    y = "M-value (log2 fold change)",
     colour = "Regulon"
   ) +
-  geom_hline(yintercept = 0, colour = "black") +
-  geom_hline(yintercept = c(-0.6, 0.6), linetype = "dashed") +
+  
+  # Horizontal reference lines
+  geom_hline(yintercept = 0, colour = "black", size = 0.4) +
+  geom_hline(yintercept = c(-0.6, 0.6), linetype = "dashed", size = 0.4) +
+  
+  # Text labels for top genes
   geom_text_repel(
     data = top_genes,
     aes(label = gene),
-    size = 3.5,
-    max.overlaps = 30
+    size = 3.2,
+    box.padding = 0.4,
+    max.overlaps = 200,
+    segment.size = 0.2
   )
 
-
-# Show plot
 print(p)
 
-# Save to file
-ggsave("MA_plot_from_TableS1.png", plot = p, width = 10, height = 7, dpi = 300)
+ggsave(
+  "Replicated_Figure2_From_TableS1.png",
+  plot = p,
+  width = 10,
+  height = 7,
+  dpi = 300
+)
 
 
 
