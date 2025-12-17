@@ -3,20 +3,46 @@ title: "volcano_plot"
 output: html_document
 date: "2025-12-16"
 ---
-```{r}
-library(DESeq2)
-library(ggplot2)
-library(pheatmap)
-library(RColorBrewer)
-library(EnhancedVolcano)
+{r}
+,,,
 
-png("Volcano_plot.png", width = 700, height = 600)
-EnhancedVolcano(res,
-                lab = rownames(res),
-                x = "log2FoldChange",
-                y = "padj",
-                pCutoff = 0.05,
-                FCcutoff = 1,
-                title = "AgXX vs Control")
+png("Volcano_plot_publication.png",
+    width = 1800, height = 1500, res = 300)
+
+EnhancedVolcano(
+  res,
+  lab = rownames(res),
+  x = "log2FoldChange",
+  y = "padj",
+
+  xlab = bquote(Log[2]~"fold change"),
+  ylab = bquote(-Log[10]~"adjusted p-value"),
+
+  pCutoff = 0.05,
+  FCcutoff = 1,
+
+  pointSize = 2.0,
+  labSize = 4.0,
+
+  col = c("grey70", "#0072B2", "#D55E00", "#CC79A7"), 
+  colAlpha = 0.9,
+
+  selectLab = rownames(
+    res[order(res$padj)[1:20], ]
+  ),
+
+  drawConnectors = TRUE,
+  widthConnectors = 0.5,
+  colConnectors = "black",
+
+  legendPosition = "top",
+  legendLabSize = 12,
+  legendIconSize = 4.0,
+
+  title = "AgXX vs Control",
+  subtitle = "Differential gene expression analysis",
+  caption = "Thresholds: |log2FC| > 1, adjusted p < 0.05"
+)
+
 dev.off()
-```
+,,,
